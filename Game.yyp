@@ -1,5 +1,11 @@
 {
   "resources": [
+    {"id":{"name":"sprite_player","path":"sprites/sprite_player/sprite_player.yy",},"order":0,},
+    {"id":{"name":"clock","path":"objects/clock/clock.yy",},"order":0,},
+    {"id":{"name":"Sprite3","path":"sprites/Sprite3/Sprite3.yy",},"order":16,},
+    {"id":{"name":"Sprite2","path":"sprites/Sprite2/Sprite2.yy",},"order":15,},
+    {"id":{"name":"object_player","path":"objects/object_player/object_player.yy",},"order":1,},
+    {"id":{"name":"object_entity","path":"objects/object_entity/object_entity.yy",},"order":0,},
     {"id":{"name":"Room1","path":"rooms/Room1/Room1.yy",},"order":0,},
   ],
   "Options": [
@@ -32,6 +38,15 @@
     {"folderPath":"folders/Animation Curves.yy","order":12,"resourceVersion":"1.0","name":"Animation Curves","tags":[],"resourceType":"GMFolder",},
     {"folderPath":"folders/Notes.yy","order":13,"resourceVersion":"1.0","name":"Notes","tags":[],"resourceType":"GMFolder",},
     {"folderPath":"folders/Extensions.yy","order":14,"resourceVersion":"1.0","name":"Extensions","tags":[],"resourceType":"GMFolder",},
+    {"folderPath":"folders/Sprites/Entities.yy","order":1,"resourceVersion":"1.0","name":"Entities","tags":[],"resourceType":"GMFolder",},
+    {"folderPath":"folders/Sprites/Environment.yy","order":2,"resourceVersion":"1.0","name":"Environment","tags":[],"resourceType":"GMFolder",},
+    {"folderPath":"folders/Sprites/Items.yy","order":3,"resourceVersion":"1.0","name":"Items","tags":[],"resourceType":"GMFolder",},
+    {"folderPath":"folders/Sprites/Legacy.yy","order":4,"resourceVersion":"1.0","name":"Legacy","tags":[],"resourceType":"GMFolder",},
+    {"folderPath":"folders/Objects/Entities.yy","order":0,"resourceVersion":"1.0","name":"Entities","tags":[],"resourceType":"GMFolder",},
+    {"folderPath":"folders/Objects/Environment.yy","order":3,"resourceVersion":"1.0","name":"Environment","tags":[],"resourceType":"GMFolder",},
+    {"folderPath":"folders/Objects/Items.yy","order":1,"resourceVersion":"1.0","name":"Items","tags":[],"resourceType":"GMFolder",},
+    {"folderPath":"folders/Objects/Legacy.yy","order":2,"resourceVersion":"1.0","name":"Legacy","tags":[],"resourceType":"GMFolder",},
+    {"folderPath":"folders/Objects/Systems.yy","order":6,"resourceVersion":"1.0","name":"Systems","tags":[],"resourceType":"GMFolder",},
   ],
   "AudioGroups": [
     {"targets":-1,"resourceVersion":"1.3","name":"audiogroup_default","resourceType":"GMAudioGroup",},
