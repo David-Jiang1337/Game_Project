@@ -1,15 +1,15 @@
 {
   "spriteId": {
-    "name": "sprite_wall1",
-    "path": "sprites/sprite_wall1/sprite_wall1.yy",
+    "name": "sprite_gun1",
+    "path": "sprites/sprite_gun1/sprite_gun1.yy",
   },
   "solid": false,
   "visible": true,
   "spriteMaskId": null,
   "persistent": false,
   "parentObjectId": {
-    "name": "object_collision",
-    "path": "objects/object_collision/object_collision.yy",
+    "name": "object_tool",
+    "path": "objects/object_tool/object_tool.yy",
   },
   "physicsObject": false,
   "physicsSensor": false,
@@ -23,15 +23,17 @@
   "physicsStartAwake": true,
   "physicsKinematic": false,
   "physicsShapePoints": [],
-  "eventList": [],
+  "eventList": [
+    {"isDnD":false,"eventNum":0,"eventType":0,"collisionObjectId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMEvent",},
+  ],
   "properties": [],
   "overriddenProperties": [],
   "parent": {
-    "name": "Environment",
-    "path": "folders/Objects/Environment.yy",
+    "name": "Tools",
+    "path": "folders/Objects/Tools.yy",
   },
   "resourceVersion": "1.0",
-  "name": "object_wall1",
+  "name": "object_gunTool",
   "tags": [],
   "resourceType": "GMObject",
 }

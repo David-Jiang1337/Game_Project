@@ -1,0 +1,4 @@
+enum weaponMode {
+	auto,
+	semi,
+}
