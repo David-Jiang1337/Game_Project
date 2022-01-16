@@ -4,8 +4,18 @@
 // Inherit the parent event
 event_inherited();
 
+xbarrel = 24; //barrel offset from origin in pixels
+ybarrel = 6;
+
+xbarrelAbsolute = 0;
+ybarrelAbsolute = 0;
+
 function attack(){
-	show_debug_message("pew!");
+	var bullet = instance_create_depth(xbarrelAbsolute,ybarrelAbsolute,0,object_bullet1)
+	bullet.direction = direction;
+	bullet.damage = damage;
+	bullet.moveSpeed = 200;
+	bullet.owner = owner;
 }
 
 function updatePos(){
@@ -18,4 +28,7 @@ function updatePos(){
 	} else {
 		image_yscale = 1;	
 	}
+	
+	xbarrelAbsolute = x+lengthdir_x(xbarrel, direction);
+	ybarrelAbsolute = y+lengthdir_y(ybarrel, direction);
 }
