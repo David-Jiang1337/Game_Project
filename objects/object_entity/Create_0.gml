@@ -55,3 +55,11 @@ function die(){
 	
 	instance_destroy();
 }
+
+function drawHealth(){
+	var healthPercent = currentHealth/maxHealth;
+//	draw_set_color(c_black);
+//	draw_rectangle(x-(sprite_width/2)-1,y+(sprite_height/2)+4,x+(sprite_width/2)+1,y+(sprite_height/2)+16,true);
+	draw_set_color(c_green);
+	draw_rectangle(x-(sprite_width/2),y+(sprite_height/2)+5,(x-(sprite_width/2)+(sprite_width*healthPercent)),y+(sprite_height/2)+15,false);
+}

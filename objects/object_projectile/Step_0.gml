@@ -12,6 +12,7 @@ if(collisionWall){ //touching wall
 	for(var i=0; i<collisionNum; i++){
 		if(collisionObj[|i] != owner){
 			collisionObj[|i].hurt(damage);
+			instance_destroy();
 			break;
 		}
 	}

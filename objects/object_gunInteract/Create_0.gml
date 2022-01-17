@@ -8,7 +8,6 @@ name = "Gun";
 prompt = "(F) Pick Up"; //prompt for interacting
 
 function interact(player){
-	show_debug_message("Picked up "+name+"!");
-	spawnItem(object_gunTool, player);
+	spawnItem(object_playerGun, player);
 	instance_destroy();
 }
