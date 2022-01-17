@@ -6,6 +6,8 @@ event_inherited();
 
 attackSpeed = 2;
 
+spread = 20; //bullet spread in degrees
+
 xbarrel = 24; //barrel offset from origin in pixels
 ybarrel = 6;
 
@@ -14,13 +16,14 @@ ybarrelAbsolute = 0;
 
 function attack(){
 	var bullet = instance_create_depth(xbarrelAbsolute,ybarrelAbsolute,0,object_bullet1)
-	bullet.direction = direction;
+	bullet.direction = direction+(irandom(spread)-(spread/2));
 	bullet.damage = damage;
 	bullet.moveSpeed = 1000;
 	bullet.owner = owner;
 }
 
 function updatePos(){
+	if(!instance_exists(owner)){instance_destroy();return;}
 	x=owner.x;
 	y=owner.y;
 	direction = point_direction(x,y,mouse_x,mouse_y);

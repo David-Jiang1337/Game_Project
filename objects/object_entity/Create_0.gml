@@ -3,9 +3,6 @@ currentHealth = 100;
 
 moveSpeed = 200; //in pixels per second
 
-buffs = ds_list_create();
-debuffs = ds_list_create();
-
 //functions
 function move(xdisplacement,ydisplacement){
 	
@@ -48,10 +45,6 @@ function heal(h){
 }
 
 function die(){
-	
-	//garbage collection
-	ds_list_destroy(buffs);
-	ds_list_destroy(debuffs);
 	
 	instance_destroy();
 }

@@ -6,6 +6,8 @@ event_inherited();
 
 attackSpeed = 2;
 
+damage = 10;
+
 xbarrel = 24; //barrel offset from origin in pixels
 ybarrel = 6;
 
@@ -22,6 +24,7 @@ function attack(){
 
 function updatePos(){
 	if(!instance_exists(owner)){instance_destroy();return;}
+	if(!instance_exists(object_player)){return;}
 	x=owner.x;
 	y=owner.y;
 	if(collision_line(x,y,object_player.x,object_player.y,object_collision,false,true) == noone){

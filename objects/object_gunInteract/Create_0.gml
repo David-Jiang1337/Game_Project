@@ -4,8 +4,8 @@
 // Inherit the parent event
 event_inherited();
 
-name = "Gun";
-prompt = "(F) Pick Up"; //prompt for interacting
+name = "Pistol";
+prompt = "(F) Pick Up "+name; //prompt for interacting
 
 function interact(player){
 	spawnItem(object_playerGun, player);
