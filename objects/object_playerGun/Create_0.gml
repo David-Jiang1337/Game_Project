@@ -15,7 +15,7 @@ xbarrelAbsolute = 0;
 ybarrelAbsolute = 0;
 
 function attack(){
-	var bullet = instance_create_depth(xbarrelAbsolute,ybarrelAbsolute,0,object_bullet1)
+	var bullet = instance_create_layer(xbarrelAbsolute,ybarrelAbsolute,"Particles",object_bullet1)
 	bullet.direction = direction+(irandom(spread)-(spread/2));
 	bullet.damage = damage;
 	bullet.moveSpeed = 1000;

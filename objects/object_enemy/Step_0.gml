@@ -1,6 +1,6 @@
 if(instance_exists(object_player)){
 	//check line of sight with player
-	if(collision_line(x,y,object_player.x,object_player.y,object_collision,false,true) == noone){
+	if(collision_line(x,y,object_player.x,object_player.y,object_collision,false,true) == noone && point_direction(x,y,object_player.x,object_player.y) <= playerDetectionRange){
 		playerVisible = true;
 		behaviourMode = enemyMode.alerted;
 		moveSpeed = 200;

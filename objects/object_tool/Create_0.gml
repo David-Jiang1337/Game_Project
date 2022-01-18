@@ -8,6 +8,8 @@ canAttack = true;
 attackInterval = 1/attackSpeed; //interval between attacks
 attackTimer = 0; //actual changing timer
 
+interactableItem = object_gunInteract;
+
 function attack(){
 		
 }

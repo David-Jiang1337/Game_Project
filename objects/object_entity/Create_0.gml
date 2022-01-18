@@ -3,6 +3,7 @@ currentHealth = 100;
 
 moveSpeed = 200; //in pixels per second
 
+weapon = noone; //equipped weapon
 //functions
 function move(xdisplacement,ydisplacement){
 	
