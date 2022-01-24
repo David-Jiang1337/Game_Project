@@ -6,7 +6,7 @@ event_inherited();
 
 attackSpeed = 2;
 
-damage = 10;
+damage = 20;
 
 xbarrel = 24; //barrel offset from origin in pixels
 ybarrel = 6;
@@ -15,6 +15,8 @@ xbarrelAbsolute = 0;
 ybarrelAbsolute = 0;
 
 function attack(){
+	audio_play_sound(sound_gun,2,false);
+	
 	var bullet = instance_create_layer(xbarrelAbsolute,ybarrelAbsolute,"Particles",object_bullet1)
 	bullet.direction = direction;
 	bullet.damage = damage;

@@ -1,0 +1,971 @@
+Line Count: 478
+
+****** clock ******************************************
+
+   *** Create_0.gml
+       //delta timed clock
+       global.realTime = delta_time/1000000; //actual render frame time
+       global.idealTime = 1/game_get_speed(gamespeed_fps); //expected render frame time
+       global.deltaMulti = global.realTime / global.idealTime; //a multiplier that counteracts lag in frame timed events
+
+
+   *** Step_0.gml
+       //updating the clock
+       global.realTime = delta_time/1000000;
+       global.idealTime = 1/game_get_speed(gamespeed_fps);
+       global.deltaMulti = global.realTime / global.idealTime;
+
+
+
+
+****** object_bullet1 ******************************************
+
+   *** Create_0.gml
+       /// @description Insert description here
+       // You can write your code in this editor
+       
+       // Inherit the parent event
+       event_inherited();
+
+
+
+
+****** object_collision ******************************************
+
+   *** Create_0.gml
+
+
+
+
+****** object_entity ******************************************
+
+   *** Draw_0.gml
+       draw_self();
+       drawHealth();
+
+
+   *** Create_0.gml
+       maxHealth = 100;
+       currentHealth = 100;
+       
+       moveSpeed = 200; //in pixels per second
+       
+       weapon = noone; //equipped weapon
+       //functions
+       function move(xdisplacement,ydisplacement){
+       	
+       	var xcollide = instance_place(x+xdisplacement,y,object_collision);
+       	var ycollide = instance_place(x,y+ydisplacement,object_collision);
+       
+       	if(xcollide == noone){
+       		x += xdisplacement;
+       	} else {
+       		x += ((xcollide.x-(xcollide.sprite_width/2*sign(xdisplacement))) - (x+(sprite_width/2*sign(xdisplacement))));	
+       	}
+       
+       	if(ycollide == noone){
+       		y += ydisplacement;
+       	} else {
+       		y += ((ycollide.y-(ycollide.sprite_height/2*sign(ydisplacement))) - (y+(sprite_height/2*sign(ydisplacement))));	
+       	}
+       
+       }
+       
+       function hurt(h){
+       	
+       	var damage = clamp(h,0,maxHealth-1); //max damage clamp is for one-shot protection
+       	
+       	currentHealth = clamp(currentHealth-damage,0,maxHealth); //make sure health can't go under 0
+       	if(currentHealth<=0){
+       		die()
+       	}
+       	
+       	show_debug_message(currentHealth);
+       	
+       }
+       
+       function heal(h){
+       	
+       	var healing = clamp(h,0,maxHealth-currentHealth);
+       	
+       	currentHealth = clamp(currentHealth+healing,0,maxHealth);
+       	
+       }
+       
+       function die(){
+       	
+       	instance_destroy();
+       }
+       
+       function drawHealth(){
+       	var healthPercent = currentHealth/maxHealth;
+       //	draw_set_color(c_black);
+       //	draw_rectangle(x-(sprite_width/2)-1,y+(sprite_height/2)+4,x+(sprite_width/2)+1,y+(sprite_height/2)+16,true);
+       	draw_set_color(c_green);
+       	draw_rectangle(x-(sprite_width/2),y+(sprite_height/2)+5,(x-(sprite_width/2)+(sprite_width*healthPercent)),y+(sprite_height/2)+15,false);
+       }
+
+
+
+
+****** object_gunInteract ******************************************
+
+   *** Create_0.gml
+       /// @description Insert description here
+       // You can write your code in this editor
+       
+       // Inherit the parent event
+       event_inherited();
+       
+       name = "Pistol";
+       prompt = "(F) Pick Up "+name; //prompt for interacting
+       
+       function interact(player){
+       	player.weapon = spawnItem(object_playerGun, player);
+       	instance_destroy();
+       }
+
+
+
+
+****** object_interactable ******************************************
+
+   *** Create_0.gml
+       name = "Item";
+       prompt = "Interact"; //prompt for interacting
+       canInteract = false;
+       
+       function interact(){
+       	show_debug_message("Interacted with "+name+"!");
+       }
+
+
+   *** Draw_0.gml
+       draw_self();
+
+
+   *** Step_1.gml
+       canInteract = false;
+       //this is done in beginstep because setting canInteract to true via player proximity is done in object_player's normal step
+
+
+   *** Draw_64.gml
+       var camera = camera_get_default();
+       
+       if(canInteract){
+       	draw_set_halign(fa_center);
+       	draw_set_color(c_black);
+       	draw_text(camera_get_view_width(camera)*0.5,camera_get_view_height(camera)*0.75, prompt)
+       }
+
+
+
+
+****** object_player ******************************************
+
+   *** Step_0.gml
+       /// @description Insert description here
+       // You can write your code in this editor
+       
+       // Inherit the parent event
+       
+       //keyboard checks
+       var up = keyboard_check(ord("W"));
+       var down = keyboard_check(ord("S"));
+       var left = keyboard_check(ord("A"));
+       var right = keyboard_check(ord("D"));
+       
+       var interactButton = keyboard_check_pressed(ord("F"));
+       
+       //movement variables
+       var xdirection = right - left;
+       var ydirection = down - up; //these works because booleans are automatically converted to binaries in this context
+       
+       var xdisplacement = (moveSpeed*global.realTime)*xdirection;
+       var ydisplacement = (moveSpeed*global.realTime)*ydirection;
+       
+       
+       
+       
+       //item interaction (this is implemented in player and not entity because only the player should be able to interact with items)
+       var nearestItem = instance_nearest(x,y,object_interactable);
+       
+       //update functions
+       
+       move(xdisplacement, ydisplacement);
+       checkInteract(nearestItem, interactButton);
+       
+
+
+   *** Step_2.gml
+       #region
+       //make camera follow player
+       var halfWidth = camera_get_view_width(view_camera[0])/2;
+       var halfHeight = camera_get_view_height(view_camera[0])/2;
+       
+       camera_set_view_pos(view_camera[0], x-halfWidth, y-halfHeight);
+       
+       #endregion
+
+
+   *** Create_0.gml
+       /// @description Insert description here
+       // You can write your code in this editor
+       
+       // Inherit the parent event
+       event_inherited();
+       
+       interactRange = 50; //how far away (in pixels) the player can be when interacting with an item
+       
+       moveSpeed = 300;
+       
+       maxHealth = global.playerMaxHealth;
+       currentHealth = global.playerHealth;
+       
+       weapon = spawnItem(global.playerWeapon, id);
+       
+       function checkInteract(interactable, keydown){
+       	if(interactable == noone){return false}; //oh yeah, I use guard clauses instead of nested ifs when possible for readaibility, should probably get used to that
+       	if(point_distance(x,y,interactable.x,interactable.y)>interactRange){return false};
+       	if(!keydown){
+       		interactable.canInteract = true;
+       	} else {
+       		interactable.interact(id);
+       	}
+       }
+       
+       function hurt(h){
+       	
+       	var damage = clamp(h,0,maxHealth-1); //max damage clamp is for one-shot protection
+       	
+       	currentHealth = clamp(currentHealth-damage,0,maxHealth); //make sure health can't go under 0
+       	if(currentHealth<=0){
+       		die()
+       	}
+       	
+       	global.playerHealth = currentHealth;
+       	global.playerMaxHealth = maxHealth;
+       	
+       }
+       
+       function heal(h){
+       	
+       	var healing = clamp(h,0,maxHealth-currentHealth);
+       	
+       	currentHealth = clamp(currentHealth+healing,0,maxHealth);
+       	
+       	global.playerHealth = currentHealth;
+       	global.playerMaxHealth = maxHealth;
+       }
+       
+       function die(){
+       	//set high score stuff
+       	if(global.currentLevel > global.maxLevel)global.maxLevel = global.currentLevel;
+       	global.currentLevel = 0;
+       	//reset player stats for next game
+       	global.playerWeapon = object_playerGun;
+       	global.playerHealth = 100;
+       	global.playerMaxHealth = 100;
+       	//gives death notification
+       	instance_create_depth(x,y,-100,object_died);
+       	//kill sound
+       	audio_stop_all();
+       	instance_destroy();
+       	//lmao
+       	audio_play_sound(sound_kekw, 0, false);
+       }
+       
+       //background music
+
+
+
+
+****** object_projectile ******************************************
+
+   *** Create_0.gml
+       /*note that bullet trajectories will only be set once in the create
+       function for improved performance and that this can be changed in 
+       projectiles that are tracking (if any are implemented)*/
+       
+       owner = noone;
+       damage = 10;
+       moveSpeed = 1000;
+       
+
+
+   *** Step_0.gml
+       //displacement variables
+       var xdisplacement = lengthdir_x(moveSpeed*global.realTime, direction); 
+       var ydisplacement = lengthdir_y(moveSpeed*global.realTime, direction);
+       
+       var collisionObj = ds_list_create()
+       var collisionNum = collision_line_list(x,y,x+xdisplacement,y+ydisplacement,object_entity,false,true,collisionObj,true);
+       var collisionWall = collision_line(x,y,x+xdisplacement,y+ydisplacement,object_collision,false,true);
+       
+       if(collisionWall){ //touching wall
+       	instance_destroy();	
+       } else { //not touching wall
+       	for(var i=0; i<collisionNum; i++){
+       		if(collisionObj[|i] != owner){
+       			collisionObj[|i].hurt(damage);
+       			instance_destroy();
+       			break;
+       		}
+       	}
+       }
+       
+       x += xdisplacement;
+       y += ydisplacement;
+       
+       image_angle = direction;
+
+
+
+
+****** object_tool ******************************************
+
+   *** Step_0.gml
+       updatePos();
+
+
+   *** Create_0.gml
+       owner = noone;
+       damage = 15;
+       attackSpeed = 15; //attacks allowed per second
+       attackMode = weaponMode.semi; //semi/auto
+       
+       //other variables - do not adjust unless necessary
+       canAttack = true;
+       attackInterval = 1/attackSpeed; //interval between attacks
+       attackTimer = 0; //actual changing timer
+       
+       interactableItem = object_gunInteract;
+       
+       function attack(){
+       		
+       }
+       
+       function updatePos(){
+       	
+       }
+
+
+
+
+****** object_wall1 ******************************************
+
+
+
+****** object_playerGun ******************************************
+
+   *** Step_0.gml
+       /// @description Insert description here
+       // You can write your code in this editor
+       
+       // Inherit the parent event
+       event_inherited();
+       
+       var clicking;
+       switch(attackMode){
+       	case weaponMode.auto: clicking = mouse_check_button(mb_left); break;
+       	case weaponMode.semi: clicking = mouse_check_button_pressed(mb_left); break;
+       	default: clicking = mouse_check_button(mb_left); break;
+       }
+       
+       if(clicking && attackTimer <= 0){
+       	attackTimer = attackInterval;
+       	attack();
+       }else{
+       	attackTimer -= global.realTime;
+       }
+
+
+   *** Create_0.gml
+       /// @description Insert description here
+       // You can write your code in this editor
+       
+       // Inherit the parent event
+       event_inherited();
+       
+       attackSpeed = 2;
+       
+       spread = 20; //bullet spread in degrees
+       
+       xbarrel = 24; //barrel offset from origin in pixels
+       ybarrel = 6;
+       
+       xbarrelAbsolute = 0;
+       ybarrelAbsolute = 0;
+       
+       interactableItem = object_gunInteract;
+       
+       function attack(){
+       	audio_play_sound(sound_gun,2,false);
+       	
+       	var bullet = instance_create_layer(xbarrelAbsolute,ybarrelAbsolute,"Particles",object_bullet1)
+       	bullet.direction = direction+(irandom(spread)-(spread/2));
+       	bullet.damage = damage;
+       	bullet.moveSpeed = 1000;
+       	bullet.owner = owner;
+       }
+       
+       function updatePos(){
+       	if(!instance_exists(owner)){instance_destroy();return;}
+       	x=owner.x;
+       	y=owner.y;
+       	direction = point_direction(x,y,mouse_x,mouse_y);
+       	image_angle = direction;
+       	if(image_angle >= 90 && image_angle <= 270){
+       		image_yscale = -1;	
+       	} else {
+       		image_yscale = 1;	
+       	}
+       	
+       	xbarrelAbsolute = x+lengthdir_x(xbarrel, direction);
+       	ybarrelAbsolute = y+lengthdir_y(ybarrel, direction);
+       }
+
+
+
+
+****** object_enemyGun ******************************************
+
+   *** Step_0.gml
+       /// @description Insert description here
+       // You can write your code in this editor
+       
+       // Inherit the parent event
+       event_inherited();
+
+
+   *** Create_0.gml
+       /// @description Insert description here
+       // You can write your code in this editor
+       
+       // Inherit the parent event
+       event_inherited();
+       
+       attackSpeed = 2;
+       
+       damage = 20;
+       
+       xbarrel = 24; //barrel offset from origin in pixels
+       ybarrel = 6;
+       
+       xbarrelAbsolute = 0;
+       ybarrelAbsolute = 0;
+       
+       function attack(){
+       	audio_play_sound(sound_gun,2,false);
+       	
+       	var bullet = instance_create_layer(xbarrelAbsolute,ybarrelAbsolute,"Particles",object_bullet1)
+       	bullet.direction = direction;
+       	bullet.damage = damage;
+       	bullet.moveSpeed = 1000;
+       	bullet.owner = owner;
+       }
+       
+       function updatePos(){
+       	if(!instance_exists(owner)){instance_destroy();return;}
+       	if(!instance_exists(object_player)){return;}
+       	x=owner.x;
+       	y=owner.y;
+       	if(collision_line(x,y,object_player.x,object_player.y,object_collision,false,true) == noone){
+       		direction = point_direction(x,y,object_player.x,object_player.y);
+       	}
+       	image_angle = direction;
+       	if(image_angle >= 90 && image_angle <= 270){
+       		image_yscale = -1;	
+       	} else {
+       		image_yscale = 1;	
+       	}
+       	
+       	xbarrelAbsolute = x+lengthdir_x(xbarrel, direction);
+       	ybarrelAbsolute = y+lengthdir_y(ybarrel, direction);
+       }
+
+
+
+
+****** object_enemy ******************************************
+
+   *** Draw_0.gml
+       /// @description Insert description here
+       // You can write your code in this editor
+       
+       // Inherit the parent event
+       event_inherited();
+       
+       if(attackTimer <= 1){
+       	draw_sprite(sprite_danger, 0, x, y-(sprite_height/2)-4);
+       }
+
+
+   *** Create_0.gml
+       /// @description Insert description here
+       // You can write your code in this editor
+       
+       // Inherit the parent event
+       event_inherited();
+       
+       weapon = spawnItem(object_enemyGun, id);
+       playerVisible = false;
+       playerDetectionRange = 200; //how far away can the enemy see the player in pixels
+       behaviourMode = enemyMode.patrol;
+       attackInterval = 1.5; //seconds between attacks
+       attackTimer = attackInterval; //timer for attacking
+       
+       function die(){
+       
+       	if(irandom(5)==1){
+       		instance_create_depth(x,y,200,object_medkit);
+       	}
+       	
+       	instance_destroy();
+       	
+       }
+
+
+   *** Step_0.gml
+       if(instance_exists(object_player)){
+       	//check line of sight with player
+       	if(collision_line(x,y,object_player.x,object_player.y,object_collision,false,true) == noone && point_direction(x,y,object_player.x,object_player.y) <= playerDetectionRange){
+       		playerVisible = true;
+       		behaviourMode = enemyMode.alerted;
+       		moveSpeed = 200;
+       	}else{
+       		playerVisible = false;
+       		behaviourMode = enemyMode.patrol;
+       		moveSpeed = 50;
+       		attackTimer = attackInterval;
+       	}
+       	if(attackTimer > 0.5){
+       			attackTimer -= global.realTime;
+       	}
+       	
+       	//attack behaviour and movement
+       	if(behaviourMode == enemyMode.patrol){
+       		//movement
+       		if(irandom_range(0,2000)==1){
+       			direction = irandom_range(1,360);
+       		}
+       		var xdisplacement = lengthdir_x(moveSpeed*global.realTime, direction);
+       		var ydisplacement = lengthdir_y(moveSpeed*global.realTime, direction);
+       		move(xdisplacement, ydisplacement);
+       	} else if(behaviourMode == enemyMode.alerted){
+       		//movement
+       		if(point_distance(x,y,object_player.x,object_player.y) > 200){
+       			direction = point_direction(x,y,object_player.x,object_player.y);
+       			var xdisplacement = lengthdir_x(moveSpeed*global.realTime, direction);
+       			var ydisplacement = lengthdir_y(moveSpeed*global.realTime, direction);
+       			move(xdisplacement, ydisplacement);
+       		} else {
+       			if(irandom_range(0,1200)==1){
+       				direction = irandom_range(1,360);
+       			}
+       			var xdisplacement = lengthdir_x(moveSpeed*global.realTime, direction);
+       			var ydisplacement = lengthdir_y(moveSpeed*global.realTime, direction);
+       			move(xdisplacement, ydisplacement);
+       		}
+       		//attacking
+       		if(attackTimer > 0){
+       			attackTimer -= global.realTime;
+       		} else {
+       			weapon.attack();
+       			attackTimer = attackInterval;
+       		}
+       	}
+       }
+
+
+
+
+****** object_medkit ******************************************
+
+   *** Create_0.gml
+       /// @description Insert description here
+       // You can write your code in this editor
+       
+       // Inherit the parent event
+       event_inherited();
+       
+       name = "Medkit";
+       prompt = "(F) Use"; //prompt for interacting
+       healFactor = 20; //how much the medkit will heal for
+       
+       function interact(){
+       	object_player.heal(healFactor);
+       	instance_destroy();
+       }
+
+
+
+
+****** newRoomObject ******************************************
+
+   *** Create_0.gml
+       randomize();
+       
+       //how many rooms will be generated
+       var spawnRooms = 1; //just keep at 1
+       var portalRooms = 1;
+       var enemyRooms = clamp(2+global.currentLevel,2,20);
+       var gearRooms = clamp(global.currentLevel div 2,1,4);
+       var roomSize = 15*32;
+       
+       //generating said rooms with a controller
+       var maxGridSize = (spawnRooms+portalRooms+enemyRooms+gearRooms)*3;
+       var grid = ds_grid_create(maxGridSize,maxGridSize); //sufficientlly large grid lmao
+       ds_grid_set_region(grid, 0, 0, maxGridSize-1, maxGridSize-1, undefined);
+       
+       var controllerX = maxGridSize div 2;
+       var controllerY = maxGridSize div 2;
+       var controllerDirection = 0;
+       
+       //creating a grid of rooms
+       
+       while(spawnRooms > 0){
+       	controllerDirection = irandom_range(0,3)*90; //change direction randomly every turn
+       	controllerX += lengthdir_x(1,controllerDirection);
+       	controllerY += lengthdir_y(1,controllerDirection);
+       	
+       	if(grid[# controllerX,controllerY] == undefined){
+       		grid[# controllerX,controllerY] = "spawnRoom";
+       		spawnRooms -= 1;
+       	}
+       }
+       
+       while(enemyRooms > 0){
+       	controllerDirection = irandom_range(0,3)*90; //change direction randomly every turn
+       	controllerX += lengthdir_x(1,controllerDirection);
+       	controllerY += lengthdir_y(1,controllerDirection);
+       	
+       	if(grid[# controllerX,controllerY] == undefined){
+       		grid[# controllerX,controllerY] = "enemyRoom";
+       		enemyRooms -= 1;
+       	}
+       }
+       
+       while(gearRooms > 0){
+       	controllerDirection = irandom_range(0,3)*90; //change direction randomly every turn
+       	controllerX += lengthdir_x(1,controllerDirection);
+       	controllerY += lengthdir_y(1,controllerDirection);
+       	
+       	if(grid[# controllerX,controllerY] == undefined){
+       		grid[# controllerX,controllerY] = "gearRoom";
+       		gearRooms -= 1;
+       	}
+       }
+       
+       while(portalRooms > 0){
+       	controllerDirection = irandom_range(0,3)*90; //change direction randomly every turn
+       	controllerX += lengthdir_x(1,controllerDirection);
+       	controllerY += lengthdir_y(1,controllerDirection);
+       	
+       	if(grid[# controllerX,controllerY] == undefined){
+       		grid[# controllerX,controllerY] = "portalRoom";
+       		portalRooms -= 1;
+       	}
+       }
+       
+       //spawning said grid of rooms into the actual room
+       for(var i=0; i<maxGridSize; i++){
+       	for(var v=0; v<maxGridSize; v++){
+       		var gridValue = grid[# i,v];
+       		var subimgValue = 0;
+       		
+       		if(gridValue == undefined)continue;
+       		
+       		//set correct bitmasking values
+       		if(grid[# i,v-1] != undefined)subimgValue += bitmask.north;
+       		if(grid[# i-1,v] != undefined)subimgValue += bitmask.west;
+       		if(grid[# i+1,v] != undefined)subimgValue += bitmask.east;
+       		if(grid[# i,v+1] != undefined)subimgValue += bitmask.south;
+       		
+       		switch(gridValue){
+       			case("spawnRoom"):
+       				genRoomFromSprite(i*roomSize, v*roomSize, room_spawn, subimgValue);
+       				break;
+       			case("enemyRoom"):
+       				genRoomFromSprite(i*roomSize, v*roomSize, room_enemies, subimgValue);
+       				break;
+       			case("gearRoom"):
+       				genRoomFromSprite(i*roomSize, v*roomSize, room_gear, subimgValue);
+       				break;
+       			case("portalRoom"):
+       				genRoomFromSprite(i*roomSize, v*roomSize, room_portal, subimgValue);
+       				break;
+       			default:
+       				break;
+       		}
+       		
+       	}
+       }
+
+
+
+
+****** object_portal ******************************************
+
+   *** Step_0.gml
+       if(instance_exists(object_enemy)){
+       	prompt = "You cannot progress until all enemies are defeated!"
+       	lock = true;
+       } else {
+       	prompt = "(F) Go Through Portal"
+       	lock = false;
+       }
+
+
+   *** Create_0.gml
+       /// @description Insert description here
+       // You can write your code in this editor
+       
+       // Inherit the parent event
+       event_inherited();
+       
+       name = "Portal";
+       prompt = "Interact"; //prompt for interacting
+       lock = true;
+       
+       function interact(){
+       	if(lock)return;
+       	global.currentLevel += 1;
+       	room_restart();
+       }
+
+
+
+
+****** statTracker ******************************************
+
+   *** Create_0.gml
+       global.playerWeapon = object_playerGun;
+       global.playerHealth = 100;
+       global.playerMaxHealth = 100;
+       
+       global.currentLevel = 0;
+       global.maxLevel = 0;
+
+
+
+
+****** object_title ******************************************
+
+
+
+****** object_play ******************************************
+
+   *** Step_0.gml
+       if(position_meeting(mouse_x,mouse_y,id)){
+       	image_index = 1;	
+       } else {
+       	image_index = 0;	
+       }
+
+
+   *** Mouse_0.gml
+       audio_play_sound(sound_load,0,false); //click sound
+       audio_play_sound(sound_einekleine,0,true); //bg music
+       room_goto(MainRoom);
+
+
+
+
+****** object_highscore ******************************************
+
+   *** Draw_64.gml
+       var camera = camera_get_default();
+       
+       draw_set_halign(fa_center);
+       draw_set_color(c_white);
+       draw_text(camera_get_view_width(camera)*0.5,y, "Highscore:" + string(global.maxLevel));
+
+
+
+
+****** object_level ******************************************
+
+   *** Draw_64.gml
+       var camera = camera_get_default();
+       
+       draw_set_halign(fa_center);
+       draw_set_color(c_black);
+       draw_text(camera_get_view_width(camera)*0.5,y, "Level:" + string(global.currentLevel));
+
+
+
+
+****** object_died ******************************************
+
+   *** Draw_64.gml
+       draw_self();
+
+
+   *** Step_0.gml
+       var enter = keyboard_check_pressed(vk_enter);
+       
+       if(enter){
+       	room_goto(TitleScreen);	
+       }
+       
+
+
+   *** Create_0.gml
+       image_xscale = 8;
+       image_yscale = 8;
+       
+
+
+
+
+****** object_instructions ******************************************
+
+
+
+****** object_ok ******************************************
+
+   *** Step_0.gml
+       if(position_meeting(mouse_x,mouse_y,id)){
+       	image_index = 1;	
+       } else {
+       	image_index = 0;	
+       }
+
+
+   *** Mouse_0.gml
+       room_goto(TitleScreen);
+
+
+
+
+****** constants ******************************************
+
+   *** constants.gml
+       enum weaponMode {
+       	auto,
+       	semi,
+       }
+       
+       enum enemyMode {
+       	patrol,
+       	alerted,
+       }
+       
+       enum cellSize {
+       	height = 32,
+       	width = 32,
+       }
+       
+       enum bitmask {
+       	north = 1,
+       	west = 2,
+       	east = 4,
+       	south = 8,
+       }
+
+
+
+
+****** spawnItem ******************************************
+
+   *** spawnItem.gml
+       function spawnItem(itemObj, ownerObj){
+       	if(itemObj == noone || ownerObj == noone){show_debug_message("Use the function correctly lmao"); return false};
+       	if(ownerObj.weapon != noone){
+       		instance_create_layer(ownerObj.x,ownerObj.y,"Interactables",ownerObj.weapon.interactableItem)
+       		with(ownerObj.weapon){instance_destroy()}
+       	} //destroys currently equipped gun
+       	var spawnedItem = instance_create_depth(0,0,-1,itemObj);
+       	spawnedItem.owner = ownerObj;
+       	
+       	return spawnedItem.id;
+       }
+
+
+
+
+****** roomGeneration ******************************************
+
+   *** roomGeneration.gml
+       function objectFromColor(color){
+       	switch(color){
+       		case($555555):
+       			return object_wall1;
+       		case($241CEE):
+       			return object_enemy;
+       		case($F3BF00):
+       			return object_player;
+       		case($000000):
+       			return object_gunInteract;
+       		case($307B19):
+       			return object_medkit;
+       		case($92312E):
+       			return object_portal;
+       		
+       		default:
+       			return undefined;
+       	}
+       }
+       
+       function objectGetDepth(obj){
+       	switch(obj){
+       		case(object_wall1):
+       			return "Enviroments";
+       		case(object_enemy):
+       			return "Entities";
+       		case(object_player):
+       			return "Entities";
+       		case(object_gunInteract):
+       			return "Interactables";
+       		case(object_medkit):
+       			return "Interactables";
+       		case(object_portal):
+       			return "Interactables";
+       			
+       		default:
+       			return undefined;
+       	}
+       }
+       
+       /*note that this function was not fully created by me, there are several tweaks from the original but
+       the source and tutorial can be found here: https://www.youtube.com/watch?v=ACxJeYgPsIc */
+       
+       function genRoomFromSprite(xpos,ypos,sprite,subimg){
+       	var height = sprite_get_height(sprite);
+       	var width = sprite_get_width(sprite);
+       	
+       	var surface = surface_create(width, height);
+       	surface_set_target(surface);
+       	draw_clear_alpha(c_black, 0);
+       	draw_sprite(sprite,subimg, 0, 0);
+       	surface_reset_target();
+       	
+       	var buffer = buffer_create(4 * width * height, buffer_fixed, 1);
+       	buffer_get_surface(buffer, surface, 0);
+       	
+       	for(var i=0; i<width; i++){
+       		for(var v=0; v<height; v++){
+       			var offset = 4 * (i + (v * width));
+       			
+       			var red = buffer_peek(buffer, offset, buffer_u8);
+       			var green = buffer_peek(buffer, offset+1, buffer_u8);
+       			var blue = buffer_peek(buffer, offset+2, buffer_u8);
+       			var alpha = buffer_peek(buffer, offset+3, buffer_u8);
+       			
+       			var color = make_color_rgb(red,green,blue);
+       			
+       			var object = objectFromColor(color);
+       			
+       			if(object == undefined || alpha == 0){continue};
+       			instance_create_layer(i*cellSize.width+xpos, v*cellSize.height+ypos, objectGetDepth(object), object);
+       		}
+       	}
+       	
+       	//garbage collection
+       	surface_free(surface);
+       	buffer_delete(buffer)
+       }
+
+
+

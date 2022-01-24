@@ -14,7 +14,11 @@ ybarrel = 6;
 xbarrelAbsolute = 0;
 ybarrelAbsolute = 0;
 
+interactableItem = object_gunInteract;
+
 function attack(){
+	audio_play_sound(sound_gun,2,false);
+	
 	var bullet = instance_create_layer(xbarrelAbsolute,ybarrelAbsolute,"Particles",object_bullet1)
 	bullet.direction = direction+(irandom(spread)-(spread/2));
 	bullet.damage = damage;

@@ -8,7 +8,10 @@ if(instance_exists(object_player)){
 		playerVisible = false;
 		behaviourMode = enemyMode.patrol;
 		moveSpeed = 50;
-		attackTimer = 3;
+		attackTimer = attackInterval;
+	}
+	if(attackTimer > 0.5){
+			attackTimer -= global.realTime;
 	}
 	
 	//attack behaviour and movement
@@ -38,7 +41,6 @@ if(instance_exists(object_player)){
 		//attacking
 		if(attackTimer > 0){
 			attackTimer -= global.realTime;
-			show_debug_message(global.realTime);
 		} else {
 			weapon.attack();
 			attackTimer = attackInterval;

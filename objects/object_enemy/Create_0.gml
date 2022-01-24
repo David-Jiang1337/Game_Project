@@ -6,9 +6,9 @@ event_inherited();
 
 weapon = spawnItem(object_enemyGun, id);
 playerVisible = false;
-playerDetectionRange = 300; //how far away can the enemy see the player in pixels
+playerDetectionRange = 200; //how far away can the enemy see the player in pixels
 behaviourMode = enemyMode.patrol;
-attackInterval = 2; //seconds between attacks
+attackInterval = 1.5; //seconds between attacks
 attackTimer = attackInterval; //timer for attacking
 
 function die(){

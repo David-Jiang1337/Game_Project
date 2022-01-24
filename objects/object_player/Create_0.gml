@@ -48,12 +48,20 @@ function heal(h){
 }
 
 function die(){
+	//set high score stuff
 	if(global.currentLevel > global.maxLevel)global.maxLevel = global.currentLevel;
 	global.currentLevel = 0;
-	
+	//reset player stats for next game
 	global.playerWeapon = object_playerGun;
 	global.playerHealth = 100;
 	global.playerMaxHealth = 100;
-	
+	//gives death notification
+	instance_create_depth(x,y,-100,object_died);
+	//kill sound
+	audio_stop_all();
 	instance_destroy();
+	//lmao
+	audio_play_sound(sound_kekw, 0, false);
 }
+
+//background music

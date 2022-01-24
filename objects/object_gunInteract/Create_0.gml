@@ -8,6 +8,6 @@ name = "Pistol";
 prompt = "(F) Pick Up "+name; //prompt for interacting
 
 function interact(player){
-	spawnItem(object_playerGun, player);
+	player.weapon = spawnItem(object_playerGun, player);
 	instance_destroy();
 }
